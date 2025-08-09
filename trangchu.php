@@ -29,13 +29,13 @@
 <!-- Navbar -->
 <nav class="navbar navbar-expand-lg navbar-dark">
     <div class="container">
-        <a class="navbar-brand" href="trangchu.html">FPT Polytechnic</a>
+        <a class="navbar-brand" href="trangchu.php">FPT Polytechnic</a>
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
         </button>
         <div class="collapse navbar-collapse" id="navbarNav">
             <ul class="navbar-nav me-auto">
-                <li class="nav-item"><a class="nav-link active" href="trangchu.html">Trang chủ</a></li>
+                <li class="nav-item"><a class="nav-link active" href="trangchu.php">Trang chủ</a></li>
                 <li class="nav-item"><a class="nav-link" href="#section-intro">Giới thiệu</a></li>
                 <li class="nav-item"><a class="nav-link" href="#footer">Liên hệ</a></li>
             </ul>
@@ -53,7 +53,7 @@
         <h1>Đồng hành cùng bạn trên hành trình chọn ngành</h1>
         <p>Chỉ với vài câu hỏi, hệ thống AI sẽ gợi ý ngành học phù hợp tại FPT Polytechnic.</p>
         <div class="mt-4">
-            <a href="form.html" class="btn btn-light btn-lg me-2" id="startTestBtn">Làm bài kiểm tra ngay</a>
+            <a href="form.php" class="btn btn-light btn-lg me-2" id="startTestBtn">Làm bài kiểm tra ngay</a>
             <a href="#footer" class="btn btn-outline-light btn-lg">Liên hệ tư vấn viên</a>
         </div>
     </div>
@@ -70,7 +70,7 @@
             <li>- Gợi ý ngành học phù hợp tại FPT Polytechnic.</li>
             <li>- Nhận kết quả ngay, kèm infographic dễ hiểu.</li>
         </ul>
-            <a href="form.html" class="btn btn-primary mt-3" id="tryNowBtn">Thử ngay</a>
+            <a href="form.php" class="btn btn-primary mt-3" id="tryNowBtn">Thử ngay</a>
     </div>
 </section>
 

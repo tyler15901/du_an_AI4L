@@ -1,134 +1,148 @@
 <?php
-require 'config.php';
+require_once 'db.php';
+require_once 'env.php';
 
 header('Content-Type: application/json; charset=utf-8');
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-    http_response_code(405);
-    echo json_encode(['success' => false, 'message' => 'Method not allowed']);
+    echo json_encode(["status" => "error", "message" => "Invalid request"]);
     exit;
 }
 
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    // Validate và sanitize data (demo đơn giản, thêm filter chi tiết hơn)
-    $name = filter_input(INPUT_POST, 'name', FILTER_SANITIZE_STRING);
-    $gender = filter_input(INPUT_POST, 'gender', FILTER_SANITIZE_STRING);
-    $age = filter_input(INPUT_POST, 'age', FILTER_VALIDATE_INT);
-    $email = filter_input(INPUT_POST, 'email', FILTER_VALIDATE_EMAIL);
-    // ... Thu thập tất cả field tương tự (interests, values, etc. là array -> json_encode)
-
-    if (!$name || !$age || !$email) {
-        http_response_code(400);
-        echo json_encode(['success' => false, 'message' => 'Dữ liệu không hợp lệ']);
-        exit;
+try {
+    // Basic validation for required fields
+    $requiredFields = ['name','gender','age','email','school','grad_year','avg_score','goals'];
+    foreach ($requiredFields as $field) {
+        if (!isset($_POST[$field]) || $_POST[$field] === '') {
+            throw new Exception("Thiếu trường bắt buộc: $field");
+        }
     }
 
-    // Chuẩn bị data JSON cho arrays
-    $subject_scores = json_encode($_POST['subject_scores'] ?? []);
-    $certificates = json_encode($_POST['certificates'] ?? []);
-    $interests = json_encode($_POST['interests'] ?? []);
-    $values = json_encode($_POST['values'] ?? []);
-    $skills = json_encode($_POST['skills'] ?? []);
-    $skill_levels = json_encode($_POST['skill_levels'] ?? []); // Giả sử JS thêm field này
-    $initial_interests = json_encode($_POST['initial_interests'] ?? []);
+    $pdo->beginTransaction();
 
-    // Insert vào DB
-    try {
-        $stmt = $pdo->prepare("INSERT INTO customers (name, gender, age, email, phone, address, school, grad_year, avg_score, subject_scores, certificates, interests, `values`, interest_desc, skills, skill_levels, experience, goals, initial_interests, source) 
-                               VALUES (:name, :gender, :age, :email, :phone, :address, :school, :grad_year, :avg_score, :subject_scores, :certificates, :interests, :values, :interest_desc, :skills, :skill_levels, :experience, :goals, :initial_interests, :source)");
-        $stmt->execute([
-        'name' => $name,
-        'gender' => $gender,
-        'age' => $age,
-        'email' => $email,
-        'phone' => $_POST['phone'] ?? null,
-        'address' => $_POST['address'] ?? null,
-        'school' => $_POST['school'],
-        'grad_year' => $_POST['grad_year'],
-        'avg_score' => $_POST['avg_score'],
-        'subject_scores' => $subject_scores,
-        'certificates' => $certificates,
-        'interests' => $interests,
-        'values' => $values,
-        'interest_desc' => $_POST['interest_desc'] ?? null,
-        'skills' => $skills,
-        'skill_levels' => $skill_levels,
-        'experience' => $_POST['experience'] ?? null,
-        'goals' => $_POST['goals'],
-        'initial_interests' => $initial_interests,
-        'source' => $_POST['source'] ?? null
+    // Chuyển đổi dữ liệu từ form
+    $interests_json = json_encode($_POST['interests'] ?? []);
+    $skills_json = json_encode(array_keys($_POST['skills'] ?? []));
+    $skill_levels_json = json_encode($_POST['skills'] ?? []);
+    $initial_interests_json = $interests_json;
+
+    // 1. Lưu thông tin khách hàng
+    $stmt = $pdo->prepare("
+        INSERT INTO customers 
+        (name, gender, age, email, phone, address, school, grad_year, avg_score, 
+         interests, interest_desc, skills, skill_levels, experience, goals, initial_interests, source) 
+        VALUES 
+        (:name, :gender, :age, :email, :phone, :address, :school, :grad_year, :avg_score, 
+         :interests, :interest_desc, :skills, :skill_levels, :experience, :goals, :initial_interests, :source)
+    ");
+    $stmt->execute([
+        ':name' => $_POST['name'],
+        ':gender' => $_POST['gender'],
+        ':age' => $_POST['age'],
+        ':email' => $_POST['email'],
+        ':phone' => $_POST['phone'] ?? null,
+        ':address' => $_POST['address'] ?? null,
+        ':school' => $_POST['school'],
+        ':grad_year' => $_POST['grad_year'],
+        ':avg_score' => $_POST['avg_score'],
+        ':interests' => $interests_json,
+        ':interest_desc' => $_POST['interest_desc'] ?? null,
+        ':skills' => $skills_json,
+        ':skill_levels' => $skill_levels_json,
+        ':experience' => $_POST['experience'] ?? null,
+        ':goals' => $_POST['goals'],
+        ':initial_interests' => $initial_interests_json,
+        ':source' => 'web_form'
+    ]);
+
+    $customer_id = $pdo->lastInsertId();
+
+    // 2. Lưu ngành quan tâm
+    if (!empty($_POST['interests'])) {
+        $stmt = $pdo->prepare("INSERT INTO customer_interests (customer_id, major_id) VALUES (:cid, :mid)");
+        foreach ($_POST['interests'] as $major_id) {
+            $stmt->execute([':cid' => $customer_id, ':mid' => $major_id]);
+        }
+    }
+
+    // 3. Lưu kỹ năng
+    if (!empty($_POST['skills'])) {
+        $stmt = $pdo->prepare("INSERT INTO customer_skills (customer_id, skill_id, level) VALUES (:cid, :sid, :lvl)");
+        foreach ($_POST['skills'] as $skill_id => $level) {
+            if (!empty($level)) {
+                $stmt->execute([':cid' => $customer_id, ':sid' => $skill_id, ':lvl' => $level]);
+            }
+        }
+    }
+
+    // 4. Tạo prompt cho AI
+    $prompt = "Bạn là chuyên gia tư vấn hướng nghiệp. 
+    Dưới đây là thông tin của một khách hàng:\n\n" . json_encode($_POST, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE) .
+    "\n\nDựa trên sở thích, kỹ năng và mục tiêu nghề nghiệp, hãy gợi ý ngành học phù hợp nhất và giải thích lý do.";
+
+    // 5. Gọi OpenAI (nếu có API key), nếu không tạo gợi ý fallback
+    $apiKey = defined('OPENAI_API_KEY') ? OPENAI_API_KEY : getenv('OPENAI_API_KEY');
+    $ai_result = null;
+    if (!empty($apiKey)) {
+        $ch = curl_init("https://api.openai.com/v1/chat/completions");
+        curl_setopt($ch, CURLOPT_HTTPHEADER, [
+            "Content-Type: application/json",
+            "Accept: application/json",
+            "Authorization: Bearer " . $apiKey
         ]);
-    } catch (Throwable $e) {
-        http_response_code(500);
-        echo json_encode(['success' => false, 'message' => 'Lỗi lưu dữ liệu', 'error' => $e->getMessage()]);
-        exit;
-    }
-
-    // Build prompt cho OpenAI từ data
-    $prompt = "Dựa trên dữ liệu: tên $name, tuổi $age, sở thích $interests, kỹ năng $skills, mục tiêu " . $_POST['goals'] . ", điểm trung bình " . $_POST['avg_score'] . ". Gợi ý 3 ngành học phù hợp tại FPT Polytechnic (CNTT, Kinh doanh, Thiết kế) với lý do chi tiết và tỷ lệ phù hợp (ví dụ: CNTT 70%).";
-
-    // Gọi API Cursor (nếu cấu hình), nếu không fallback OpenAI, cuối cùng fallback thông báo.
-    $ai_result = 'AI chưa được cấu hình.';
-    if (CURSOR_API_URL && CURSOR_API_KEY) {
-        $ch = curl_init(rtrim(CURSOR_API_URL, '/') . '/chat/completions');
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($ch, CURLOPT_POST, true);
-        curl_setopt($ch, CURLOPT_HTTPHEADER, [
-            'Content-Type: application/json',
-            'Authorization: Bearer ' . CURSOR_API_KEY
-        ]);
         curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode([
-            'model' => CURSOR_MODEL,
-            'messages' => [
-                ['role' => 'system', 'content' => 'Bạn là cố vấn hướng nghiệp cho học sinh Việt Nam. Trả lời súc tích, thực tế.'],
-                ['role' => 'user', 'content' => $prompt]
+            "model" => "gpt-4o-mini",
+            "messages" => [
+                ["role" => "system", "content" => "Bạn là chuyên gia hướng nghiệp, trả lời bằng tiếng Việt."],
+                ["role" => "user", "content" => $prompt]
             ],
-            'temperature' => 0.4
+            "max_tokens" => 500
         ]));
         $response = curl_exec($ch);
-        if ($response !== false) {
-            $ai_data = json_decode($response, true);
-            $ai_result = $ai_data['choices'][0]['message']['content'] ?? $ai_result;
-        } else {
-            $ai_result = 'Cursor API error: ' . curl_error($ch);
-        }
+        $curlErrNo = curl_errno($ch);
+        $curlErr = curl_error($ch);
+        $httpCode = (int) curl_getinfo($ch, CURLINFO_HTTP_CODE);
         curl_close($ch);
-    } elseif (API_KEY_OPENAI) {
-        $ch = curl_init('https://api.openai.com/v1/chat/completions');
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch, CURLOPT_POST, true);
-        curl_setopt($ch, CURLOPT_HTTPHEADER, [
-            'Content-Type: application/json',
-            'Authorization: Bearer ' . API_KEY_OPENAI
-        ]);
-        curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode([
-            'model' => 'gpt-4o-mini',
-            'messages' => [
-                ['role' => 'system', 'content' => 'Bạn là cố vấn hướng nghiệp cho học sinh Việt Nam. Trả lời súc tích, thực tế.'],
-                ['role' => 'user', 'content' => $prompt]
-            ],
-            'temperature' => 0.4
-        ]));
-        $response = curl_exec($ch);
-        if ($response !== false) {
-            $ai_data = json_decode($response, true);
-            $ai_result = $ai_data['choices'][0]['message']['content'] ?? $ai_result;
+
+        if ($curlErrNo !== 0) {
+            $ai_result = 'Không thể kết nối AI: ' . $curlErr;
         } else {
-            $ai_result = 'OpenAI error: ' . curl_error($ch);
+            $ai_data = json_decode($response, true);
+            $ai_result = $ai_data['choices'][0]['message']['content'] ?? (
+                ($httpCode >= 400) ? ('Lỗi AI HTTP ' . $httpCode) : 'Không nhận được phản hồi từ AI'
+            );
         }
-        curl_close($ch);
+    } else {
+        $ai_result = 'Chưa cấu hình OPENAI_API_KEY. Vui lòng liên hệ tư vấn viên để được hỗ trợ trực tiếp.';
     }
 
-    // Update ai_result vào DB
-    try {
-        $update_stmt = $pdo->prepare("UPDATE customers SET ai_result = :ai_result WHERE id = :id");
-        $update_stmt->execute(['ai_result' => $ai_result, 'id' => $pdo->lastInsertId()]);
-    } catch (Throwable $e) {
-        // Không chặn response nếu chỉ lỗi cập nhật kết quả
-    }
+    // 6. Cập nhật kết quả AI
+    $stmt = $pdo->prepare("UPDATE customers SET ai_result = :ai WHERE id = :cid");
+    $stmt->execute([':ai' => $ai_result, ':cid' => $customer_id]);
 
-    // Trả JSON cho frontend
-    echo json_encode(['success' => true, 'result' => $ai_result]);
-    exit;
+    // 7. Lưu request
+    $stmt = $pdo->prepare("
+        INSERT INTO requests (customer_id, raw_input, prompt, ai_response) 
+        VALUES (:cid, :raw, :prompt, :ai)
+    ");
+    $stmt->execute([
+        ':cid' => $customer_id,
+        ':raw' => json_encode($_POST, JSON_UNESCAPED_UNICODE),
+        ':prompt' => $prompt,
+        ':ai' => $ai_result
+    ]);
+
+    $pdo->commit();
+
+    echo json_encode([
+        "status" => "success",
+        "message" => "Tư vấn thành công",
+        "ai_result" => $ai_result
+    ]);
+
+} catch (Exception $e) {
+    $pdo->rollBack();
+    echo json_encode(["status" => "error", "message" => $e->getMessage()]);
 }
-?>
