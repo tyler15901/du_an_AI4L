@@ -12,7 +12,7 @@
         /* Custom CSS cho màu sắc và background */
         body { background-color: #f8f9fa; font-family: Arial, sans-serif; }
         .navbar { background-color: #00b3b3; }
-        .hero { background-color: #00b3b3; color: white; padding: 100px 0; background-image: url('path/to/background-image.jpg'); /* Thay bằng URL hình nhóm người */ background-size: cover; background-position: center; }
+        .hero { background-color: #00b3b3; color: white; padding: 100px 0; background-image: linear-gradient(135deg,#00b3b3,#008080); background-size: cover; background-position: center; }
         .hero h1 { font-size: 2.5rem; font-weight: bold; }
         .hero p { font-size: 1.2rem; }
         .section-intro { padding: 50px 0; background-color: #f8f9fa; }
@@ -29,15 +29,15 @@
 <!-- Navbar -->
 <nav class="navbar navbar-expand-lg navbar-dark">
     <div class="container">
-        <a class="navbar-brand" href="#">FPT Polytechnic</a>
+        <a class="navbar-brand" href="trangchu.html">FPT Polytechnic</a>
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
         </button>
         <div class="collapse navbar-collapse" id="navbarNav">
             <ul class="navbar-nav me-auto">
-                <li class="nav-item"><a class="nav-link active" href="#">Trang chủ</a></li>
-                <li class="nav-item"><a class="nav-link" href="#">Giới thiệu</a></li>
-                <li class="nav-item"><a class="nav-link" href="#">Liên hệ</a></li>
+                <li class="nav-item"><a class="nav-link active" href="trangchu.html">Trang chủ</a></li>
+                <li class="nav-item"><a class="nav-link" href="#section-intro">Giới thiệu</a></li>
+                <li class="nav-item"><a class="nav-link" href="#footer">Liên hệ</a></li>
             </ul>
             <form class="d-flex">
                 <input class="form-control me-2" type="search" placeholder="Tìm kiếm" aria-label="Search" id="searchInput">
@@ -50,17 +50,17 @@
 <!-- Hero Section -->
 <section class="hero text-center">
     <div class="container">
-        <h1>VÌ BẠN KHÔNG CÓ DỰNG TRÊN HÀNH TRÌNH PHÁT TRIỂN NGHỀ NGHIỆP?</h1>
-        <p>Chỉ với một số câu hỏi đơn giản, bạn sẽ biết mình phù hợp với ngành nào?</p>
+        <h1>Đồng hành cùng bạn trên hành trình chọn ngành</h1>
+        <p>Chỉ với vài câu hỏi, hệ thống AI sẽ gợi ý ngành học phù hợp tại FPT Polytechnic.</p>
         <div class="mt-4">
-            <a href="#" class="btn btn-light btn-lg me-2" id="startTestBtn">Làm bài kiểm tra ngay</a>
-            <a href="#" class="btn btn-outline-light btn-lg">Liên hệ tư vấn viên</a>
+            <a href="form.html" class="btn btn-light btn-lg me-2" id="startTestBtn">Làm bài kiểm tra ngay</a>
+            <a href="#footer" class="btn btn-outline-light btn-lg">Liên hệ tư vấn viên</a>
         </div>
     </div>
 </section>
 
 <!-- Section Giới Thiệu -->
-<section class="section-intro text-center">
+<section id="section-intro" class="section-intro text-center">
     <div class="container">
         <i class="fas fa-desktop fa-5x mb-3 text-primary"></i>
         <h3>Trắc nghiệm như hướng dẫn nghề nghiệp...</h3>
@@ -70,7 +70,7 @@
             <li>- Gợi ý ngành học phù hợp tại FPT Polytechnic.</li>
             <li>- Nhận kết quả ngay, kèm infographic dễ hiểu.</li>
         </ul>
-        <a href="#" class="btn btn-primary mt-3" id="tryNowBtn">Thử ngay</a>
+            <a href="form.html" class="btn btn-primary mt-3" id="tryNowBtn">Thử ngay</a>
     </div>
 </section>
 
@@ -105,11 +105,11 @@
 </section>
 
 <!-- Footer -->
-<footer class="footer">
+<footer id="footer" class="footer">
     <div class="container">
         <div class="row">
             <div class="col-md-4">
-                <img src="path/to/fpt-logo.png" alt="FPT Logo" class="mb-3" style="width: 150px;"> <!-- Thay URL logo -->
+                <img src="https://upload.wikimedia.org/wikipedia/commons/2/20/FPT_Polytechnic.png" alt="FPT Logo" class="mb-3" style="width: 150px;">
                 <p>Địa chỉ: Số 1, Đường ABC, Quận 1, TP.HCM</p>
                 <p>Email: info@fpt.edu.vn</p>
                 <p>Điện thoại: 0123 456 789</p>
@@ -147,21 +147,17 @@
 
 <!-- Bootstrap JS -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-<!-- Custom JS --
+<!-- Custom JS -->
 <script>
-    // JS đơn giản cho button và search (demo)
-    document.getElementById('startTestBtn').addEventListener('click', function(e) {
-        e.preventDefault();
-        console.log('Bắt đầu bài kiểm tra'); // Thay bằng redirect đến form
-    });
-    document.getElementById('tryNowBtn').addEventListener('click', function(e) {
-        e.preventDefault();
-        console.log('Thử ngay'); // Thay bằng action
-    });
-    document.getElementById('searchInput').addEventListener('keyup', function() {
-        console.log('Tìm kiếm: ' + this.value); // Thay bằng search logic
-    });
+    // JS đơn giản cho search (demo)
+    const searchInput = document.getElementById('searchInput');
+    if (searchInput) {
+      searchInput.addEventListener('keyup', function() {
+        // Tương lai: thực hiện tìm kiếm bài viết/hỏi đáp
+        // console.log('Tìm kiếm:', this.value);
+      });
+    }
 </script>
 
 </body>
-duan</html>
+</html>
