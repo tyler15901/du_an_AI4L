@@ -246,18 +246,15 @@
             });
         });
 
-        // Submit form AJAX
-        document.getElementById('careerForm').addEventListener('submit', function(e) {
+        // Submit form AJAX với xử lý lỗi mạng
+        document.getElementById('careerForm').addEventListener('submit', async function(e) {
             e.preventDefault();
             const formData = new FormData(this);
-            fetch('process.php', {
-                method: 'POST',
-                body: formData
-            }).then(response => response.json())
-            .then(data => {
+            try {
+                const res = await fetch('process.php', { method: 'POST', body: formData });
+                const data = await res.json();
                 if (data.success) {
                     document.getElementById('aiResult').innerHTML = data.result;
-                    // Vẽ chart (demo pie chart)
                     const ctx = document.getElementById('resultChart').getContext('2d');
                     new Chart(ctx, {
                         type: 'pie',
@@ -268,9 +265,11 @@
                     });
                     new bootstrap.Modal(document.getElementById('resultModal')).show();
                 } else {
-                    alert(data.message);
+                    alert(data.message || 'Có lỗi khi gọi AI');
                 }
-            });
+            } catch (err) {
+                alert('Không thể gửi yêu cầu: ' + err);
+            }
         });
 
         // Quét QR code

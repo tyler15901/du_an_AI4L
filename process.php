@@ -3,6 +3,12 @@ require 'config.php';
 
 header('Content-Type: application/json; charset=utf-8');
 
+if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+    http_response_code(405);
+    echo json_encode(['success' => false, 'message' => 'Method not allowed']);
+    exit;
+}
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // Validate và sanitize data (demo đơn giản, thêm filter chi tiết hơn)
     $name = filter_input(INPUT_POST, 'name', FILTER_SANITIZE_STRING);
@@ -27,9 +33,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $initial_interests = json_encode($_POST['initial_interests'] ?? []);
 
     // Insert vào DB
-    $stmt = $pdo->prepare("INSERT INTO customers (name, gender, age, email, phone, address, school, grad_year, avg_score, subject_scores, certificates, interests, `values`, interest_desc, skills, skill_levels, experience, goals, initial_interests, source) 
-                           VALUES (:name, :gender, :age, :email, :phone, :address, :school, :grad_year, :avg_score, :subject_scores, :certificates, :interests, :values, :interest_desc, :skills, :skill_levels, :experience, :goals, :initial_interests, :source)");
-    $stmt->execute([
+    try {
+        $stmt = $pdo->prepare("INSERT INTO customers (name, gender, age, email, phone, address, school, grad_year, avg_score, subject_scores, certificates, interests, `values`, interest_desc, skills, skill_levels, experience, goals, initial_interests, source) 
+                               VALUES (:name, :gender, :age, :email, :phone, :address, :school, :grad_year, :avg_score, :subject_scores, :certificates, :interests, :values, :interest_desc, :skills, :skill_levels, :experience, :goals, :initial_interests, :source)");
+        $stmt->execute([
         'name' => $name,
         'gender' => $gender,
         'age' => $age,
@@ -50,7 +57,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         'goals' => $_POST['goals'],
         'initial_interests' => $initial_interests,
         'source' => $_POST['source'] ?? null
-    ]);
+        ]);
+    } catch (Throwable $e) {
+        http_response_code(500);
+        echo json_encode(['success' => false, 'message' => 'Lỗi lưu dữ liệu', 'error' => $e->getMessage()]);
+        exit;
+    }
 
     // Build prompt cho OpenAI từ data
     $prompt = "Dựa trên dữ liệu: tên $name, tuổi $age, sở thích $interests, kỹ năng $skills, mục tiêu " . $_POST['goals'] . ", điểm trung bình " . $_POST['avg_score'] . ". Gợi ý 3 ngành học phù hợp tại FPT Polytechnic (CNTT, Kinh doanh, Thiết kế) với lý do chi tiết và tỷ lệ phù hợp (ví dụ: CNTT 70%).";
@@ -77,6 +89,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if ($response !== false) {
             $ai_data = json_decode($response, true);
             $ai_result = $ai_data['choices'][0]['message']['content'] ?? $ai_result;
+        } else {
+            $ai_result = 'Cursor API error: ' . curl_error($ch);
         }
         curl_close($ch);
     } elseif (API_KEY_OPENAI) {
@@ -99,13 +113,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if ($response !== false) {
             $ai_data = json_decode($response, true);
             $ai_result = $ai_data['choices'][0]['message']['content'] ?? $ai_result;
+        } else {
+            $ai_result = 'OpenAI error: ' . curl_error($ch);
         }
         curl_close($ch);
     }
 
     // Update ai_result vào DB
-    $update_stmt = $pdo->prepare("UPDATE customers SET ai_result = :ai_result WHERE id = :id");
-    $update_stmt->execute(['ai_result' => $ai_result, 'id' => $pdo->lastInsertId()]);
+    try {
+        $update_stmt = $pdo->prepare("UPDATE customers SET ai_result = :ai_result WHERE id = :id");
+        $update_stmt->execute(['ai_result' => $ai_result, 'id' => $pdo->lastInsertId()]);
+    } catch (Throwable $e) {
+        // Không chặn response nếu chỉ lỗi cập nhật kết quả
+    }
 
     // Trả JSON cho frontend
     echo json_encode(['success' => true, 'result' => $ai_result]);

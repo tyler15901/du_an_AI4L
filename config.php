@@ -1,4 +1,6 @@
 <?php
+// Load environment variables from .env if present
+require_once __DIR__ . '/env.php';
 // Cho phép override qua biến môi trường (Laragon vẫn có thể để trống mật khẩu)
 define('DB_HOST', getenv('DB_HOST') ?: 'localhost');
 define('DB_NAME', getenv('DB_NAME') ?: 'duan_ai');
@@ -10,17 +12,23 @@ try {
     $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
     $pdo->exec("SET NAMES utf8mb4");
 } catch (PDOException $e) {
-    die("Kết nối DB thất bại: " . $e->getMessage());
+    // Trả JSON để client không lỗi parse
+    if (!headers_sent()) {
+        header('Content-Type: application/json; charset=utf-8');
+        http_response_code(500);
+    }
+    echo json_encode(['success' => false, 'message' => 'Kết nối DB thất bại', 'error' => $e->getMessage()]);
+    exit;
 }
 
 // API Key OpenAI (đặt trong biến môi trường OPENAI_API_KEY)
 define('API_KEY_OPENAI', getenv('OPENAI_API_KEY') ?: '');
 
-// Nếu dùng Cursor API/proxy, cấu hình qua biến môi trường sau:
+// Nếu dùng Cursor API/proxy, cấu hình qua biến môi trường sau (không hardcode key):
 // CURSOR_API_URL: ví dụ https://api.cursor.dev/v1 (hoặc proxy riêng)
 // CURSOR_API_KEY: Bearer token để gọi API của Cursor
 // CURSOR_MODEL  : tên model (mặc định gpt-4o-mini)
-define('CURSOR_API_URL', getenv('CURSOR_API_URL') ?: 'https://api.openai.com/v1');
-define('CURSOR_API_KEY', getenv('CURSOR_API_KEY') ?: 'key_73c175a410239dfd138c834c9a38af0d0116a85353eb1eda84de8fb6c167c918');
+define('CURSOR_API_URL', getenv('CURSOR_API_URL') ?: '');
+define('CURSOR_API_KEY', getenv('CURSOR_API_KEY') ?: '');
 define('CURSOR_MODEL', getenv('CURSOR_MODEL') ?: 'gpt-4o-mini');
 ?>
