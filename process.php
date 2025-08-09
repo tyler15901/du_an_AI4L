@@ -55,9 +55,31 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // Build prompt cho OpenAI từ data
     $prompt = "Dựa trên dữ liệu: tên $name, tuổi $age, sở thích $interests, kỹ năng $skills, mục tiêu " . $_POST['goals'] . ", điểm trung bình " . $_POST['avg_score'] . ". Gợi ý 3 ngành học phù hợp tại FPT Polytechnic (CNTT, Kinh doanh, Thiết kế) với lý do chi tiết và tỷ lệ phù hợp (ví dụ: CNTT 70%).";
 
-    // Gọi API OpenAI (nếu có key)
+    // Gọi API Cursor (nếu cấu hình), nếu không fallback OpenAI, cuối cùng fallback thông báo.
     $ai_result = 'AI chưa được cấu hình.';
-    if (API_KEY_OPENAI) {
+    if (CURSOR_API_URL && CURSOR_API_KEY) {
+        $ch = curl_init(rtrim(CURSOR_API_URL, '/') . '/chat/completions');
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_POST, true);
+        curl_setopt($ch, CURLOPT_HTTPHEADER, [
+            'Content-Type: application/json',
+            'Authorization: Bearer ' . CURSOR_API_KEY
+        ]);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode([
+            'model' => CURSOR_MODEL,
+            'messages' => [
+                ['role' => 'system', 'content' => 'Bạn là cố vấn hướng nghiệp cho học sinh Việt Nam. Trả lời súc tích, thực tế.'],
+                ['role' => 'user', 'content' => $prompt]
+            ],
+            'temperature' => 0.4
+        ]));
+        $response = curl_exec($ch);
+        if ($response !== false) {
+            $ai_data = json_decode($response, true);
+            $ai_result = $ai_data['choices'][0]['message']['content'] ?? $ai_result;
+        }
+        curl_close($ch);
+    } elseif (API_KEY_OPENAI) {
         $ch = curl_init('https://api.openai.com/v1/chat/completions');
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($ch, CURLOPT_POST, true);
@@ -74,11 +96,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             'temperature' => 0.4
         ]));
         $response = curl_exec($ch);
-        if ($response === false) {
-            $ai_result = 'Không thể gọi OpenAI.';
-        } else {
+        if ($response !== false) {
             $ai_data = json_decode($response, true);
-            $ai_result = $ai_data['choices'][0]['message']['content'] ?? 'Lỗi gọi AI';
+            $ai_result = $ai_data['choices'][0]['message']['content'] ?? $ai_result;
         }
         curl_close($ch);
     }

@@ -13,6 +13,14 @@ try {
     die("Kết nối DB thất bại: " . $e->getMessage());
 }
 
-// API Key OpenAI (có thể đặt trong biến môi trường OPENAI_API_KEY)
+// API Key OpenAI (đặt trong biến môi trường OPENAI_API_KEY)
 define('API_KEY_OPENAI', getenv('OPENAI_API_KEY') ?: '');
+
+// Nếu dùng Cursor API/proxy, cấu hình qua biến môi trường sau:
+// CURSOR_API_URL: ví dụ https://api.cursor.dev/v1 (hoặc proxy riêng)
+// CURSOR_API_KEY: Bearer token để gọi API của Cursor
+// CURSOR_MODEL  : tên model (mặc định gpt-4o-mini)
+define('CURSOR_API_URL', getenv('CURSOR_API_URL') ?: 'https://api.openai.com/v1');
+define('CURSOR_API_KEY', getenv('CURSOR_API_KEY') ?: 'key_73c175a410239dfd138c834c9a38af0d0116a85353eb1eda84de8fb6c167c918');
+define('CURSOR_MODEL', getenv('CURSOR_MODEL') ?: 'gpt-4o-mini');
 ?>

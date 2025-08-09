@@ -1,0 +1,68 @@
+{
+  "majors": [
+    {
+      "id": "it",
+      "code": "IT",
+      "name": "Công nghệ thông tin",
+      "faculty": "Kỹ thuật",
+      "tags": ["it", "coding", "software"],
+      "description": "Tập trung vào lập trình, cấu trúc dữ liệu, phát triển ứng dụng web/mobile.",
+      "subjects": ["toan", "tin", "ly"],
+      "skills": ["programming", "analysis", "problem_solving"],
+      "careers": ["Web Developer", "Mobile Developer", "Tester"]
+    },
+    {
+      "id": "design",
+      "code": "DES",
+      "name": "Thiết kế đồ hoạ",
+      "faculty": "Mỹ thuật",
+      "tags": ["design", "creative"],
+      "description": "Thiết kế thương hiệu, UI/UX cơ bản, tư duy thẩm mỹ.",
+      "subjects": ["van", "anh"],
+      "skills": ["design", "communication"],
+      "careers": ["Graphic Designer", "Junior UI Designer"]
+    },
+    {
+      "id": "business",
+      "code": "BUS",
+      "name": "Quản trị kinh doanh",
+      "faculty": "Kinh tế",
+      "tags": ["business", "management"],
+      "description": "Kiến thức nền tảng về marketing, tài chính, quản trị.",
+      "subjects": ["toan", "anh"],
+      "skills": ["communication", "analysis"],
+      "careers": ["Sales Executive", "Marketing Assistant"]
+    }
+  ],
+  "subjects": [
+    { "id": "toan", "name": "Toán" },
+    { "id": "ly",   "name": "Vật lý" },
+    { "id": "hoa",  "name": "Hoá học" },
+    { "id": "van",  "name": "Ngữ văn" },
+    { "id": "anh",  "name": "Tiếng Anh" },
+    { "id": "tin",  "name": "Tin học" }
+  ],
+  "curriculums": [
+    {
+      "majorId": "it",
+      "semesters": [
+        {"index": 1, "modules": ["Nhập môn CNTT", "Cơ sở lập trình", "Kỹ năng mềm"]},
+        {"index": 2, "modules": ["Cấu trúc dữ liệu", "Cơ sở dữ liệu", "Web cơ bản"]}
+      ]
+    },
+    {
+      "majorId": "design",
+      "semesters": [
+        {"index": 1, "modules": ["Mỹ thuật cơ bản", "Công cụ thiết kế", "Kỹ năng mềm"]}
+      ]
+    },
+    {
+      "majorId": "business",
+      "semesters": [
+        {"index": 1, "modules": ["Nhập môn kinh doanh", "Marketing căn bản", "Kỹ năng mềm"]}
+      ]
+    }
+  ]
+}
+
+
