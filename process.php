@@ -1,6 +1,8 @@
 <?php
 require 'config.php';
 
+header('Content-Type: application/json; charset=utf-8');
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // Validate và sanitize data (demo đơn giản, thêm filter chi tiết hơn)
     $name = filter_input(INPUT_POST, 'name', FILTER_SANITIZE_STRING);
@@ -10,6 +12,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // ... Thu thập tất cả field tương tự (interests, values, etc. là array -> json_encode)
 
     if (!$name || !$age || !$email) {
+        http_response_code(400);
         echo json_encode(['success' => false, 'message' => 'Dữ liệu không hợp lệ']);
         exit;
     }
@@ -52,24 +55,33 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // Build prompt cho OpenAI từ data
     $prompt = "Dựa trên dữ liệu: tên $name, tuổi $age, sở thích $interests, kỹ năng $skills, mục tiêu " . $_POST['goals'] . ", điểm trung bình " . $_POST['avg_score'] . ". Gợi ý 3 ngành học phù hợp tại FPT Polytechnic (CNTT, Kinh doanh, Thiết kế) với lý do chi tiết và tỷ lệ phù hợp (ví dụ: CNTT 70%).";
 
-    // Gọi API OpenAI
-    $ch = curl_init('https://api.openai.com/v1/chat/completions');
-    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-    curl_setopt($ch, CURLOPT_POST, true);
-    curl_setopt($ch, CURLOPT_HTTPHEADER, [
-        'Content-Type: application/json',
-        'Authorization: Bearer ' . API_KEY_OPENAI
-    ]);
-    curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode([
-        'model' => 'gpt-3.5-turbo',
-        'messages' => [['role' => 'user', 'content' => $prompt]],
-        'temperature' => 0.7
-    ]));
-    $response = curl_exec($ch);
-    curl_close($ch);
-
-    $ai_data = json_decode($response, true);
-    $ai_result = $ai_data['choices'][0]['message']['content'] ?? 'Lỗi gọi AI';
+    // Gọi API OpenAI (nếu có key)
+    $ai_result = 'AI chưa được cấu hình.';
+    if (API_KEY_OPENAI) {
+        $ch = curl_init('https://api.openai.com/v1/chat/completions');
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_POST, true);
+        curl_setopt($ch, CURLOPT_HTTPHEADER, [
+            'Content-Type: application/json',
+            'Authorization: Bearer ' . API_KEY_OPENAI
+        ]);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode([
+            'model' => 'gpt-4o-mini',
+            'messages' => [
+                ['role' => 'system', 'content' => 'Bạn là cố vấn hướng nghiệp cho học sinh Việt Nam. Trả lời súc tích, thực tế.'],
+                ['role' => 'user', 'content' => $prompt]
+            ],
+            'temperature' => 0.4
+        ]));
+        $response = curl_exec($ch);
+        if ($response === false) {
+            $ai_result = 'Không thể gọi OpenAI.';
+        } else {
+            $ai_data = json_decode($response, true);
+            $ai_result = $ai_data['choices'][0]['message']['content'] ?? 'Lỗi gọi AI';
+        }
+        curl_close($ch);
+    }
 
     // Update ai_result vào DB
     $update_stmt = $pdo->prepare("UPDATE customers SET ai_result = :ai_result WHERE id = :id");
