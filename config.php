@@ -1,13 +1,25 @@
 <?php
 // config.php
+// Cấu hình DB
+define('DB_HOST', '127.0.0.1');
+define('DB_NAME', 'fpt_recommender');
+define('DB_USER', 'root');
+define('DB_PASS', ''); // đổi theo XAMPP/MAMP
 
-require_once __DIR__ . '/env.php';
+// Tùy chọn sử dụng API
+// Nếu bạn muốn gọi OpenAI (internet), set USE_LOCAL_API = false và đặt OPENAI_API_KEY
+// Nếu bạn muốn chạy hoàn toàn local (không cần internet), set USE_LOCAL_API = true
+define('USE_LOCAL_API', true);
+define('OPENAI_API_KEY', 'sk-REPLACE_WITH_YOUR_KEY'); // nếu có
 
-// Ưu tiên lấy từ biến môi trường hoặc .env; fallback về giá trị cũ
-define('DB_HOST', getenv('DB_HOST') ?: 'localhost');
-define('DB_NAME', getenv('DB_NAME') ?: 'du_an_ai');  // Đổi tên DB của bạn
-define('DB_USER', getenv('DB_USER') ?: 'root');      // User MySQL
-define('DB_PASS', getenv('DB_PASS') ?: '');          // Mật khẩu MySQL
-
-// OPENAI_API_KEY được nạp trong env.php nếu có
-?>
+function pdo() {
+    static $pdo = null;
+    if ($pdo === null) {
+        $dsn = "mysql:host=".DB_HOST.";dbname=".DB_NAME.";charset=utf8mb4";
+        $pdo = new PDO($dsn, DB_USER, DB_PASS, [
+            PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
+            PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
+        ]);
+    }
+    return $pdo;
+}
