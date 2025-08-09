@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hệ Thống Tư Vấn Ngành Học AI - FPT Polytechnic</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome for Icons -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet">
+    <style>
+        /* Custom CSS cho màu sắc và background */
+        body { background-color: #f8f9fa; font-family: Arial, sans-serif; }
+        .navbar { background-color: #00b3b3; }
+        .hero { background-color: #00b3b3; color: white; padding: 100px 0; background-image: url('path/to/background-image.jpg'); /* Thay bằng URL hình nhóm người */ background-size: cover; background-position: center; }
+        .hero h1 { font-size: 2.5rem; font-weight: bold; }
+        .hero p { font-size: 1.2rem; }
+        .section-intro { padding: 50px 0; background-color: #f8f9fa; }
+        .section-services { padding: 50px 0; background-color: #00b3b3; color: white; }
+        .card { background-color: white; color: #333; border: none; box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
+        .footer { background-color: #00b3b3; color: white; padding: 50px 0; }
+        .footer form { background-color: #fff; padding: 20px; border-radius: 8px; color: #333; }
+        .btn-primary { background-color: #00b3b3; border-color: #00b3b3; }
+        .btn-primary:hover { background-color: #008080; }
+    </style>
+</head>
+<body>
+
+<!-- Navbar -->
+<nav class="navbar navbar-expand-lg navbar-dark">
+    <div class="container">
+        <a class="navbar-brand" href="#">FPT Polytechnic</a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav me-auto">
+                <li class="nav-item"><a class="nav-link active" href="#">Trang chủ</a></li>
+                <li class="nav-item"><a class="nav-link" href="#">Giới thiệu</a></li>
+                <li class="nav-item"><a class="nav-link" href="#">Liên hệ</a></li>
+            </ul>
+            <form class="d-flex">
+                <input class="form-control me-2" type="search" placeholder="Tìm kiếm" aria-label="Search" id="searchInput">
+                <button class="btn btn-outline-light" type="submit"><i class="fas fa-search"></i></button>
+            </form>
+        </div>
+    </div>
+</nav>
+
+<!-- Hero Section -->
+<section class="hero text-center">
+    <div class="container">
+        <h1>VÌ BẠN KHÔNG CÓ DỰNG TRÊN HÀNH TRÌNH PHÁT TRIỂN NGHỀ NGHIỆP?</h1>
+        <p>Chỉ với một số câu hỏi đơn giản, bạn sẽ biết mình phù hợp với ngành nào?</p>
+        <div class="mt-4">
+            <a href="#" class="btn btn-light btn-lg me-2" id="startTestBtn">Làm bài kiểm tra ngay</a>
+            <a href="#" class="btn btn-outline-light btn-lg">Liên hệ tư vấn viên</a>
+        </div>
+    </div>
+</section>
+
+<!-- Section Giới Thiệu -->
+<section class="section-intro text-center">
+    <div class="container">
+        <i class="fas fa-desktop fa-5x mb-3 text-primary"></i>
+        <h3>Trắc nghiệm như hướng dẫn nghề nghiệp...</h3>
+        <ul class="list-unstyled text-start mx-auto" style="max-width: 600px;">
+            <li>- Đơn giản, nhanh chóng, chỉ với một số câu hỏi cơ bản.</li>
+            <li>- Dựa trên AI để phân tích sở thích, kỹ năng của bạn.</li>
+            <li>- Gợi ý ngành học phù hợp tại FPT Polytechnic.</li>
+            <li>- Nhận kết quả ngay, kèm infographic dễ hiểu.</li>
+        </ul>
+        <a href="#" class="btn btn-primary mt-3" id="tryNowBtn">Thử ngay</a>
+    </div>
+</section>
+
+<!-- Section Dịch Vụ -->
+<section class="section-services text-center">
+    <div class="container">
+        <h2>BẢN DỰ ÁN CỦA KHOA KỸ THUẬT TU VẤN</h2>
+        <div class="row mt-4">
+            <div class="col-md-4">
+                <div class="card p-3">
+                    <i class="fas fa-users fa-3x mb-3 text-primary"></i>
+                    <h5>Dịch vụ hỗ trợ</h5>
+                    <p>Chúng tôi hỗ trợ tư vấn miễn phí, dựa trên dữ liệu cá nhân.</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card p-3">
+                    <i class="fas fa-hands-helping fa-3x mb-3 text-primary"></i>
+                    <h5>Hỗ trợ tư vấn</h5>
+                    <p>Tư vấn viên sẵn sàng hỗ trợ thêm sau kết quả AI.</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card p-3">
+                    <i class="fas fa-chart-line fa-3x mb-3 text-primary"></i>
+                    <h5>Thiết kế chương trình</h5>
+                    <p>Chương trình học được thiết kế phù hợp với ngành gợi ý.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Footer -->
+<footer class="footer">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-4">
+                <img src="path/to/fpt-logo.png" alt="FPT Logo" class="mb-3" style="width: 150px;"> <!-- Thay URL logo -->
+                <p>Địa chỉ: Số 1, Đường ABC, Quận 1, TP.HCM</p>
+                <p>Email: info@fpt.edu.vn</p>
+                <p>Điện thoại: 0123 456 789</p>
+            </div>
+            <div class="col-md-4">
+                <h5>Thông tin thêm</h5>
+                <ul class="list-unstyled">
+                    <li><a href="#" class="text-white">Về chúng tôi</a></li>
+                    <li><a href="#" class="text-white">Chính sách bảo mật</a></li>
+                    <li><a href="#" class="text-white">Điều khoản sử dụng</a></li>
+                </ul>
+            </div>
+            <div class="col-md-4">
+                <h5>Liên hệ chúng tôi</h5>
+                <form>
+                    <div class="mb-3">
+                        <input type="text" class="form-control" placeholder="Tên của bạn">
+                    </div>
+                    <div class="mb-3">
+                        <input type="email" class="form-control" placeholder="Email">
+                    </div>
+                    <div class="mb-3">
+                        <textarea class="form-control" rows="3" placeholder="Tin nhắn"></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Gửi</button>
+                </form>
+            </div>
+        </div>
+        <div class="text-center mt-4">
+            <a href="#" class="text-white me-3"><i class="fab fa-facebook fa-2x"></i></a>
+            <a href="#" class="text-white me-3"><i class="fab fa-linkedin fa-2x"></i></a>
+        </div>
+    </div>
+</footer>
+
+<!-- Bootstrap JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<!-- Custom JS --
+<script>
+    // JS đơn giản cho button và search (demo)
+    document.getElementById('startTestBtn').addEventListener('click', function(e) {
+        e.preventDefault();
+        console.log('Bắt đầu bài kiểm tra'); // Thay bằng redirect đến form
+    });
+    document.getElementById('tryNowBtn').addEventListener('click', function(e) {
+        e.preventDefault();
+        console.log('Thử ngay'); // Thay bằng action
+    });
+    document.getElementById('searchInput').addEventListener('keyup', function() {
+        console.log('Tìm kiếm: ' + this.value); // Thay bằng search logic
+    });
+</script>
+
+</body>
+duan</html>
